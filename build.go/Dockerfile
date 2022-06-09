@@ -1,33 +1,31 @@
-FROM golang:1.16-alpine as backend
+FROM golang:1.18-alpine
+LABEL maintainer="Nil Borodulia <brdnlssrg@gmail.com>"
 
-ARG GIT_BRANCH
-ARG GITHUB_SHA
-ARG CI
-
-ENV GOFLAGS="-mod=vendor"
-ENV CGO_ENABLED=0
-
-ADD . /build
-WORKDIR /build
-
-RUN apk add --no-cache --update git tzdata ca-certificates
-
-RUN go mod vendor
+ENV \
+    TIME_ZONE=Europe/London   \
+    CGO_ENABLED=0               \
+    GOVERALLS=0.0.11            \
+    GOLANGCI=1.45.2             \
+    STATIK=0.1.7                \
+    GORELEASER=1.8.3
 
 RUN \
-    if [ -z "$CI" ] ; then \
-    echo "runs outside of CI" && version=$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --format=%h)-$(date +%Y%m%dT%H:%M:%S); \
-    else version=${GIT_BRANCH}-${GITHUB_SHA:0:7}-$(date +%Y%m%dT%H:%M:%S); fi && \
-    echo "version=$version"
+    apk add --no-cache --update tzdata git bash curl && \
+    echo "${TIME_ZONE}" > /etc/timezone && \
+    cp /usr/share/zoneinfo/${TIME_ZONE} /etc/localtime && \
+    date && \
+    rm -rf /var/cache/apk/*
 
-RUN cd app && go build -o /echo-http -ldflags "-X main.revision=${version} -s -w"
+RUN \
+    go version && \
+    go install github.com/matryer/moq@latest && moq -version
 
-FROM scratch
+RUN \
+    go install github.com/golangci/golangci-lint/cmd/golangci-lint@v${GOLANGCI} && \
+    golangci-lint --version
 
-COPY --from=backend /usr/share/zoneinfo /usr/share/zoneinfo
-COPY --from=backend /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=backend /echo-http /srv/echo-http
+RUN go install github.com/mattn/goveralls@v${GOVERALLS} && which goveralls
 
-EXPOSE 8080
-WORKDIR /srv
-ENTRYPOINT ["/srv/echo-http"]
+ADD coverage.sh /script/coverage.sh
+
+RUN chmod +x /script/coverage.sh
