@@ -1,5 +1,5 @@
 FROM golang:1.18-alpine
-LABEL maintainer="Nil Borodulia <brdnlssrg@gmail.com>"
+LABEL maintainer="Nil Borodulia <brdnlsrg@gmail.com>"
 
 ENV \
     TIME_ZONE=Europe/London   \
