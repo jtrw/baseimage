@@ -1,5 +1,6 @@
-# Golang Base image
+# Golang, PHP Base image
 
+## Go
 ```
 FROM brdnlsrg/baseimage:latest as backend
 
@@ -35,3 +36,7 @@ EXPOSE 8080
 WORKDIR /srv
 ENTRYPOINT ["/srv/echo-http"]
 ```
+
+## PHP
+`FROM brdnlsrg/baseimage:php-light`
+
