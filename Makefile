@@ -10,8 +10,11 @@ push_go:
 build_go:
 	docker build --pull -t brdnlsrg/baseimage:go-latest build.go -f build.go/Dockerfile
 
-build_php_mysql_light:
-	docker build --pull -t brdnlsrg/baseimage:php-mysql-light build.php -f build.php/php7.4-dev-fpm-light/Dockerfile
+build_php_light:
+	docker build --pull -t brdnlsrg/baseimage:php-light build.php -f build.php/php7.4-dev-fpm-light/Dockerfile
 
 build_php_pgsql_light:
 	docker build --pull -t brdnlsrg/baseimage:php-pgsql-light build.php -f build.php/php7.4-dev-fpm-light/Dockerfile
+
+build_php_dev_full:
+	docker build --pull -t brdnlsrg/baseimage:php-dev-full build.php -f build.php/php7.4-dev-fpm/Dockerfile
