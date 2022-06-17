@@ -2,7 +2,7 @@
 
 ## Go
 ```
-FROM brdnlsrg/baseimage:latest as backend
+FROM brdnlsrg/baseimage:go-latest as backend
 
 ARG GIT_BRANCH
 ARG GITHUB_SHA
@@ -39,4 +39,10 @@ ENTRYPOINT ["/srv/echo-http"]
 
 ## PHP
 `FROM brdnlsrg/baseimage:php-light`
+
+Include
+1. curl
+1. mysql
+1. composer
+1. xdebug
 
