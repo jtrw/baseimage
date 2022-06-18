@@ -7,6 +7,9 @@ all: build_go build_php_mysql_light
 push_go:
 	docker push brdnlsrg/baseimage:go-latest
 
+push_php_light:
+	docker push brdnlsrg/baseimage:php-light
+
 build_go:
 	docker build --pull -t brdnlsrg/baseimage:go-latest build.go -f build.go/Dockerfile
 
