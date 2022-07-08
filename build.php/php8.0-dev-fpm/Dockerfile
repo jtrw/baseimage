@@ -35,9 +35,9 @@ RUN docker-php-ext-install opcache
 RUN docker-php-ext-enable opcache
 
 # amqp
-#RUN apk add --no-cache rabbitmq-c-dev
-#RUN pecl install amqp
-#RUN docker-php-ext-enable amqp
+RUN apk add --no-cache rabbitmq-c-dev
+RUN pecl install amqp
+RUN docker-php-ext-enable amqp
 
 # redis
 RUN pecl install redis
