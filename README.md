@@ -46,3 +46,9 @@ Include
 1. composer
 1. xdebug
 
+`FROM brdnlsrg/baseimage:php8.1-full-dev-mysql`
+
+`FROM brdnlsrg/baseimage:php8.1-full-dev`
+
+`FROM brdnlsrg/baseimage:php8.0-full-dev`
+
