@@ -1,0 +1,14 @@
+{
+    "name": "nil/php8.1-dev-cli-utils",
+    "authors": [
+        {
+            "name": "Nil Borodulia",
+            "email": "brdnlsrg@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "phpstan/phpstan": "^1.10",
+        "vimeo/psalm": "^5.15",
+        "squizlabs/php_codesniffer": "^3.7"
+    }
+}
