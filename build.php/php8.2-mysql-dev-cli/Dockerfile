@@ -1,11 +1,12 @@
 ARG PHP_VER
 
-FROM --platform=linux/amd64 php:8.1-fpm-alpine
+FROM --platform=linux/amd64 php:8.2-cli-alpine
 
 RUN apk update
 RUN apk add --no-cache build-base
 RUN apk add --no-cache autoconf
 RUN apk add --no-cache automake
+RUN apk add --no-cache linux-headers
 
 # curl for cmd
 RUN apk add --no-cache curl
@@ -81,6 +82,11 @@ RUN docker-php-ext-enable ast
 # pcntl
 RUN docker-php-ext-install pcntl
 RUN docker-php-ext-enable pcntl
+
+# supervisor
+RUN apk add --no-cache supervisor
+RUN mkdir -p /var/log/supervisor
+
 
 # php settings
 ADD conf.ini /usr/local/etc/php/conf.d/
