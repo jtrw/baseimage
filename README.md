@@ -52,3 +52,11 @@ Include
 
 `FROM brdnlsrg/baseimage:php8.0-full-dev`
 
+`FROM brdnlsrg/php8.1-mysql-prod-cli`
+
+`FROM brdnlsrg/php8.1-mysql-prod-fpm`
+
+`FROM brdnlsrg/php8.1-mysql-dev-cli`
+
+
+
