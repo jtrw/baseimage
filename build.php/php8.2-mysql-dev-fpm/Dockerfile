@@ -1,6 +1,6 @@
 ARG PHP_VER
 
-FROM --platform=linux/amd64 php:8.2-fpm-alpine
+FROM php:8.2-fpm-alpine
 
 RUN apk update
 RUN apk add --no-cache build-base
