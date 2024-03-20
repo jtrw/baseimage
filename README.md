@@ -59,4 +59,10 @@ Include
 `FROM brdnlsrg/php8.1-mysql-dev-cli`
 
 
+### Cross platform
+
+```
+docker buildx build --platform linux/amd64,linux/arm64,linux/arm64/v8 -t brdnlsrg/baseimage:php8.2-pgsql-prod-fpm --push .
+```
+
 
