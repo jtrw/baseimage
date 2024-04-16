@@ -1,6 +1,7 @@
 # Golang, PHP Base image
 
 ## Go
+
 ```
 FROM brdnlsrg/baseimage:go-latest as backend
 
@@ -38,9 +39,11 @@ ENTRYPOINT ["/srv/echo-http"]
 ```
 
 ## PHP
+
 `FROM brdnlsrg/baseimage:php-light`
 
 Include
+
 1. curl
 1. mysql
 1. composer
@@ -58,11 +61,24 @@ Include
 
 `FROM brdnlsrg/php8.1-mysql-dev-cli`
 
+`FROM brdnlsrg/php8.2-mysql-dev-fpm`
+
+`FROM brdnlsrg/php8.2-mysql-dev-cli`
+
+`FROM brdnlsrg/php8.2-mysql-prod-cli`
+
+`FROM brdnlsrg/php8.2-mysql-prod-fpm`
+
+`FROM brdnlsrg/php8.2-pgsql-dev-fpm`
+
+`FROM brdnlsrg/php8.2-pgsql-dev-cli`
+
+`FROM brdnlsrg/php8.2-pgsql-prod-cli`
+
+`FROM brdnlsrg/php8.2-pgsql-prod-fpm`
 
 ### Cross platform
 
 ```
 docker buildx build --platform linux/amd64,linux/arm64,linux/arm64/v8 -t brdnlsrg/baseimage:php8.2-pgsql-prod-fpm --push .
 ```
-
-
