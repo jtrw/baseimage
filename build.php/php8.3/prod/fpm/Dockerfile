@@ -50,15 +50,20 @@ RUN pecl install mcrypt amqp redis && \
     docker-php-ext-configure gd --with-jpeg=/usr/include/ && \
     docker-php-ext-install gd
 
+# Встановлення Composer
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_MEMORY_LIMIT -1
 ENV COMPOSER_CACHE_DIR /.composer_cache
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+# Налаштування для PHP
 ADD conf.ini /usr/local/etc/php/conf.d/
 RUN chmod +r /usr/local/etc/php/conf.d/conf.ini
 
+ADD opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+
+# Очищення кешу
 RUN rm -rf /var/cache/apk/* /var/tmp/* /tmp/*
 
 WORKDIR /app
