@@ -86,3 +86,7 @@ docker buildx build --platform linux/amd64,linux/arm64,linux/arm64/v8 -t brdnlsr
 ```
 docker buildx build --platform linux/amd64,linux/arm64,linux/arm64/v8 -t brdnlsrg/baseimage:php8.3-dev-fpm --push .
 ```
+
+```
+docker buildx build --platform linux/amd64,linux/arm64 -t brdnlsrg/baseimage:php8.4-dev-fpm --push .
+```
