@@ -71,7 +71,10 @@ RUN apk add --no-cache \
     libzip \
     rabbitmq-c \
     postgresql-libs \
-    supervisor
+    supervisor \
+    freetype \
+    libpng \
+    libjpeg-turbo
 
 # Copy everything from base build
 COPY --from=build /usr/local/ /usr/local/
@@ -88,7 +91,7 @@ ENV COMPOSER_MEMORY_LIMIT=-1
 ENV COMPOSER_CACHE_DIR=/.composer_cache
 ARG PHP_VER
 ARG TZ
-ENV TZ ${TZ}
+ENV TZ=${TZ}
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Supervisor
