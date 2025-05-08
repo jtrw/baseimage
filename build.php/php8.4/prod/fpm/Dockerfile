@@ -1,37 +1,31 @@
 ARG PHP_VER
 ARG TZ
 
+# Build stage
 FROM php:8.4-fpm-alpine AS build
 
-RUN apk update && apk add --no-cache \
+# Встановлення залежностей для збірки
+RUN apk add --no-cache \
     build-base \
     autoconf \
     automake \
+    libtool \
     linux-headers \
     curl \
+    git \
+    unzip \
+    gnupg \
     icu-dev \
     rabbitmq-c-dev \
     libzip-dev \
     postgresql-dev \
-    git \
-    unzip \
-    gnupg \
-    supervisor \
     libmcrypt-dev \
     oniguruma-dev \
-    freetype \
-    libpng \
-    libjpeg-turbo \
     freetype-dev \
     libpng-dev \
     libjpeg-turbo-dev \
     libxml2-dev \
-    libmaxminddb-dev \
-    imagemagick \
-    imagemagick-dev \
-    libtool \
-    gnu-libiconv \
- && rm -rf /var/cache/apk/*
+    imagemagick-dev
 
 # PHP Extensions
 RUN docker-php-ext-install \
@@ -43,46 +37,52 @@ RUN docker-php-ext-install \
     mysqli \
     pdo_mysql \
     pdo_pgsql \
-    pcntl
+    pcntl \
+    xml
 
 # PECL Extensions
 RUN pecl install amqp redis ast \
  && docker-php-ext-enable amqp redis ast
 
-RUN docker-php-ext-configure gd --with-jpeg=/usr/include/ \
-    && docker-php-ext-install gd
+# GD
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+ && docker-php-ext-install gd
 
 # Composer
-ENV COMPOSER_ALLOW_SUPERUSER=1
-ENV COMPOSER_MEMORY_LIMIT=-1
-ENV COMPOSER_CACHE_DIR=/.composer_cache
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    COMPOSER_MEMORY_LIMIT=-1 \
+    COMPOSER_CACHE_DIR=/.composer_cache
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+# Production stage
 FROM php:8.4-fpm-alpine AS prod
 
+# Runtime dependencies only
 RUN apk add --no-cache \
     bash \
-    git \
-    build-base \
-    linux-headers \
-    gnupg \
     icu-libs \
     libzip \
     rabbitmq-c \
     postgresql-libs \
-    supervisor \
     freetype \
     libpng \
-    libjpeg-turbo
+    libjpeg-turbo \
+    supervisor \
+    imagemagick \
+    oniguruma \
+    libxml2 \
+    gnu-libiconv
 
-# Copy everything from base build
+# Копіюємо зібрані файли
 COPY --from=build /usr/local/ /usr/local/
+COPY --from=build /root/.composer /root/.composer
 
-# Composer ENV
-ENV COMPOSER_ALLOW_SUPERUSER=1
-ENV COMPOSER_MEMORY_LIMIT=-1
-ENV COMPOSER_CACHE_DIR=/.composer_cache
+# Налаштування середовища
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    COMPOSER_MEMORY_LIMIT=-1 \
+    COMPOSER_CACHE_DIR=/.composer_cache
+
 ARG PHP_VER
 ARG TZ
 ENV TZ=${TZ}
@@ -91,11 +91,12 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Supervisor
 RUN mkdir -p /var/log/supervisor
 
-# PHP конфігурація
-ADD conf.ini /usr/local/etc/php/conf.d/conf.ini
-RUN chmod +r /usr/local/etc/php/conf.d/conf.ini
-
+# PHP Configuration
+ADD conf.ini /usr/local/etc/php/conf.d/
 ADD opcache.ini /usr/local/etc/php/conf.d/
-RUN chmod +r /usr/local/etc/php/conf.d/opcache.ini
+
+COPY www.conf /usr/local/etc/php-fpm.d/
+
+RUN chmod +r /usr/local/etc/php/conf.d/*.ini
 
 WORKDIR /app

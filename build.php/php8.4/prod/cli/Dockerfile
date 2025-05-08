@@ -1,95 +1,100 @@
 ARG PHP_VER
+ARG TZ
 
-FROM php:8.4-cli-alpine
+# Build stage
+FROM php:8.4-cli-alpine AS build
 
-RUN apk update
-RUN apk add --no-cache build-base
-RUN apk add --no-cache autoconf
-RUN apk add --no-cache automake
-RUN apk add --no-cache linux-headers
+# Встановлення залежностей для збірки
+RUN apk add --no-cache \
+    build-base \
+    autoconf \
+    automake \
+    libtool \
+    linux-headers \
+    curl \
+    git \
+    unzip \
+    gnupg \
+    icu-dev \
+    rabbitmq-c-dev \
+    libzip-dev \
+    postgresql-dev \
+    libmcrypt-dev \
+    oniguruma-dev \
+    freetype-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    libxml2-dev \
+    imagemagick-dev
 
-# curl for cmd
-RUN apk add --no-cache curl
+# PHP Extensions
+RUN docker-php-ext-install \
+    bcmath \
+    sockets \
+    intl \
+    opcache \
+    zip \
+    mysqli \
+    pdo_mysql \
+    pdo_pgsql \
+    pcntl \
+    xml
 
-# php extensions
+# PECL Extensions
+RUN pecl install amqp redis ast \
+ && docker-php-ext-enable amqp redis ast
 
-# bcmath
-RUN docker-php-ext-install bcmath
-RUN docker-php-ext-enable bcmath
+# GD
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+ && docker-php-ext-install gd
 
-# sockets
-RUN docker-php-ext-install sockets
-RUN docker-php-ext-enable sockets
-
-# intl
-RUN apk add --no-cache icu-dev
-RUN docker-php-ext-install intl
-RUN docker-php-ext-enable intl
-
-# opcache
-RUN docker-php-ext-install opcache
-RUN docker-php-ext-enable opcache
-
-# amqp
-RUN apk add --no-cache rabbitmq-c-dev
-RUN pecl install amqp
-RUN docker-php-ext-enable amqp
-
-# redis
-RUN pecl install redis
-RUN docker-php-ext-enable redis
-
-# zip
-RUN apk add --no-cache libzip-dev
-RUN docker-php-ext-install zip
-RUN docker-php-ext-enable zip
-
-# mysql
-RUN docker-php-ext-install mysqli
-RUN docker-php-ext-enable mysqli
-
-# pdo
-RUN docker-php-ext-install pdo_mysql
-RUN docker-php-ext-enable pdo_mysql
-
-# pdo_pgsql
-RUN apk add --no-cache postgresql-dev
-RUN docker-php-ext-install pdo_pgsql
-RUN docker-php-ext-enable pdo_pgsql
-
-# opcache
-RUN docker-php-ext-install opcache
-RUN docker-php-ext-enable opcache
-
-#composer
-ENV COMPOSER_ALLOW_SUPERUSER 1
-ENV COMPOSER_MEMORY_LIMIT -1
-
-#CMD mkdir /.composer_cache
-ENV COMPOSER_CACHE_DIR /.composer_cache
-
-RUN apk add --no-cache git unzip
+# Composer
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    COMPOSER_MEMORY_LIMIT=-1 \
+    COMPOSER_CACHE_DIR=/.composer_cache
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN apk add --no-cache gnupg
+# Production stage
+FROM php:8.4-fpm-alpine AS prod
 
-RUN pecl install ast
-RUN docker-php-ext-enable ast
+# Runtime dependencies only
+RUN apk add --no-cache \
+    bash \
+    icu-libs \
+    libzip \
+    rabbitmq-c \
+    postgresql-libs \
+    freetype \
+    libpng \
+    libjpeg-turbo \
+    supervisor \
+    imagemagick \
+    oniguruma \
+    libxml2 \
+    gnu-libiconv
 
-# pcntl
-RUN docker-php-ext-install pcntl
-RUN docker-php-ext-enable pcntl
+# Копіюємо зібрані файли
+COPY --from=build /usr/local/ /usr/local/
+COPY --from=build /root/.composer /root/.composer
 
-# supervisor
-RUN apk add --no-cache supervisor
+# Налаштування середовища
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    COMPOSER_MEMORY_LIMIT=-1 \
+    COMPOSER_CACHE_DIR=/.composer_cache
+
+ARG PHP_VER
+ARG TZ
+ENV TZ=${TZ}
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Supervisor
 RUN mkdir -p /var/log/supervisor
 
-
-# php settings
+# PHP Configuration
 ADD conf.ini /usr/local/etc/php/conf.d/
-RUN chmod +r /usr/local/etc/php/conf.d/conf.ini
+ADD opcache.ini /usr/local/etc/php/conf.d/
 
-RUN rm -rf /var/cache/apk/* /var/tmp/* /tmp/*
+RUN chmod +r /usr/local/etc/php/conf.d/*.ini
 
 WORKDIR /app

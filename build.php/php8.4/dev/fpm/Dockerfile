@@ -26,7 +26,6 @@ RUN apk update && apk add --no-cache \
     libpng-dev \
     libjpeg-turbo-dev \
     libxml2-dev \
-    libmaxminddb-dev \
     imagemagick \
     imagemagick-dev \
     libtool \
