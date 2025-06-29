@@ -1,0 +1,14 @@
+:80 {
+    root * /app/public
+    encode gzip
+    php_fastcgi 127.0.0.1:9000
+    file_server
+    log {
+        output file /var/log/caddy/access.log
+    }
+    @robots path /robots.txt
+    handle @robots {
+        header Content-Type text/plain
+        respond "User-agent: *\nDisallow: /\n" 200
+    }
+}
