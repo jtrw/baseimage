@@ -97,6 +97,7 @@ ADD conf.ini /usr/local/etc/php/conf.d/
 ADD opcache.ini /usr/local/etc/php/conf.d/
 
 COPY www.conf /usr/local/etc/php-fpm.d/
+COPY Caddyfile /etc/caddy/Caddyfile
 
 RUN chmod +r /usr/local/etc/php/conf.d/*.ini
 
