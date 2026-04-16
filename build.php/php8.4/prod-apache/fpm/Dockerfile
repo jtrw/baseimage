@@ -72,8 +72,8 @@ RUN docker-php-ext-configure gd --with-jpeg=/usr/include/ && \
     docker-php-ext-install gd
 RUN apt-get clean
 
-ENV COMPOSER_ALLOW_SUPERUSER 1
-ENV COMPOSER_MEMORY_LIMIT -1
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV COMPOSER_MEMORY_LIMIT=-1
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
